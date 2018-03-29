@@ -1,2 +1,0 @@
-时长 pFormatCtx->duration 24037000
-w*h 640*352
