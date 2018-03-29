@@ -123,32 +123,86 @@ VideoLearning/fast:
 	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/build
 .PHONY : VideoLearning/fast
 
-PlayVideo2.o: PlayVideo2.cpp.o
+StringUtils.o: StringUtils.cpp.o
 
-.PHONY : PlayVideo2.o
+.PHONY : StringUtils.o
 
 # target to build an object file
-PlayVideo2.cpp.o:
-	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/PlayVideo2.cpp.o
-.PHONY : PlayVideo2.cpp.o
+StringUtils.cpp.o:
+	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/StringUtils.cpp.o
+.PHONY : StringUtils.cpp.o
 
-PlayVideo2.i: PlayVideo2.cpp.i
+StringUtils.i: StringUtils.cpp.i
 
-.PHONY : PlayVideo2.i
+.PHONY : StringUtils.i
 
 # target to preprocess a source file
-PlayVideo2.cpp.i:
-	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/PlayVideo2.cpp.i
-.PHONY : PlayVideo2.cpp.i
+StringUtils.cpp.i:
+	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/StringUtils.cpp.i
+.PHONY : StringUtils.cpp.i
 
-PlayVideo2.s: PlayVideo2.cpp.s
+StringUtils.s: StringUtils.cpp.s
 
-.PHONY : PlayVideo2.s
+.PHONY : StringUtils.s
 
 # target to generate assembly for a file
-PlayVideo2.cpp.s:
-	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/PlayVideo2.cpp.s
-.PHONY : PlayVideo2.cpp.s
+StringUtils.cpp.s:
+	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/StringUtils.cpp.s
+.PHONY : StringUtils.cpp.s
+
+Video2YUV.o: Video2YUV.cpp.o
+
+.PHONY : Video2YUV.o
+
+# target to build an object file
+Video2YUV.cpp.o:
+	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/Video2YUV.cpp.o
+.PHONY : Video2YUV.cpp.o
+
+Video2YUV.i: Video2YUV.cpp.i
+
+.PHONY : Video2YUV.i
+
+# target to preprocess a source file
+Video2YUV.cpp.i:
+	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/Video2YUV.cpp.i
+.PHONY : Video2YUV.cpp.i
+
+Video2YUV.s: Video2YUV.cpp.s
+
+.PHONY : Video2YUV.s
+
+# target to generate assembly for a file
+Video2YUV.cpp.s:
+	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/Video2YUV.cpp.s
+.PHONY : Video2YUV.cpp.s
+
+main.o: main.cpp.o
+
+.PHONY : main.o
+
+# target to build an object file
+main.cpp.o:
+	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/main.cpp.o
+.PHONY : main.cpp.o
+
+main.i: main.cpp.i
+
+.PHONY : main.i
+
+# target to preprocess a source file
+main.cpp.i:
+	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/main.cpp.i
+.PHONY : main.cpp.i
+
+main.s: main.cpp.s
+
+.PHONY : main.s
+
+# target to generate assembly for a file
+main.cpp.s:
+	$(MAKE) -f CMakeFiles/VideoLearning.dir/build.make CMakeFiles/VideoLearning.dir/main.cpp.s
+.PHONY : main.cpp.s
 
 # Help Target
 help:
@@ -159,9 +213,15 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... VideoLearning"
-	@echo "... PlayVideo2.o"
-	@echo "... PlayVideo2.i"
-	@echo "... PlayVideo2.s"
+	@echo "... StringUtils.o"
+	@echo "... StringUtils.i"
+	@echo "... StringUtils.s"
+	@echo "... Video2YUV.o"
+	@echo "... Video2YUV.i"
+	@echo "... Video2YUV.s"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 .PHONY : help
 
 

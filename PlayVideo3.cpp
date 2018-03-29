@@ -1,8 +1,11 @@
 //
 // Created by 金国充 on 11/03/2018.
+// 添加队列
+// 遗留问题: 如果先切割再显示, 显示不对
 //
 
 #include <iostream>
+#include <queue>
 
 using namespace std;
 
@@ -20,7 +23,11 @@ extern "C"
 char FILE_NAME[] = "屌丝男士.mov";
 
 
-int main(int argc, char *argv[]) {
+bool enQueue(const AVFrame *frame);
+
+std::queue<AVFrame *> queue1;
+
+int play() {
 
     //ffmpeg
 
@@ -121,49 +128,70 @@ int main(int argc, char *argv[]) {
     pFrameYUV->height = height;
     pFrameYUV->format = AV_PIX_FMT_YUV420P;
 
-    int numBytes = avpicture_get_size((AVPixelFormat) pFrameYUV->format, pFrameYUV->width, pFrameYUV->height);
-    uint8_t *buffer = (uint8_t *) av_malloc(numBytes * sizeof(uint8_t));
-
-    avpicture_fill((AVPicture *) pFrameYUV, buffer, (AVPixelFormat) pFrameYUV->format, width, height);
-
-
-//    unsigned char *out_buffer;
-//    out_buffer = (unsigned char *) av_malloc(
-//            (size_t) av_image_get_buffer_size(AV_PIX_FMT_YUV420P, width, height, 1));
+//    int numBytes = avpicture_get_size((AVPixelFormat) pFrameYUV->format, pFrameYUV->width, pFrameYUV->height);
+//    uint8_t *buffer = (uint8_t *) av_malloc(numBytes * sizeof(uint8_t));
 //
-//    av_image_fill_arrays(pFrameYUV->data, pFrameYUV->linesize, out_buffer,
-//                         AV_PIX_FMT_YUV420P, width, height, 1);
+//    avpicture_fill((AVPicture *) pFrameYUV, buffer, (AVPixelFormat) pFrameYUV->format, width, height);
+
+    unsigned char *out_buffer;
+    out_buffer = (unsigned char *) av_malloc(
+            (size_t) av_image_get_buffer_size(AV_PIX_FMT_YUV420P, width, height, 1));
+
+    av_image_fill_arrays(pFrameYUV->data, pFrameYUV->linesize, out_buffer,
+                         AV_PIX_FMT_YUV420P, width, height, 1);
 
     SwsContext *sws_ctx = sws_getContext(width, height, pVideoCodecCtx->pix_fmt, width, height,
-                                                         AV_PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
+                                         AV_PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
+
+
+    queue<AVFrame *> queue1;
 
     while (av_read_frame(pFormatCtx, pVideoPacket) >= 0) {
         if (pVideoPacket->stream_index == videoIndex) {
             if (avcodec_send_packet(pVideoCodecCtx, pVideoPacket) >= 0) {
                 if (avcodec_receive_frame(pVideoCodecCtx, pFrameOri) >= 0) {
-                    int sliceHeight = sws_scale(sws_ctx, (uint8_t const *const *) pFrameOri->data,
-                                                pFrameOri->linesize, 0,
-                                                height, pFrameYUV->data, pFrameYUV->linesize);
-
                     //XXX pFrameOri 这样一帧的数据是大的, 要切割
-
-                    //SDL---------------------------
-                    SDL_UpdateTexture(sdlTexture, nullptr, pFrameYUV->data[0], pFrameYUV->linesize[0]);
-                    SDL_RenderClear(sdlRenderer);
-                    SDL_RenderCopy(sdlRenderer, sdlTexture, &sdlRect, &sdlRect);
-                    //SDL_RenderCopy(sdlRenderer, sdlTexture, nullptr, nullptr);
-                    SDL_RenderPresent(sdlRenderer);
-
-                    //SDL End-----------------------
-
+                    //显示不对
+                    int sliceHeight = sws_scale(sws_ctx, (uint8_t const *const *) pFrameOri->data,
+                                                 pFrameOri->linesize,
+                                                0, height, pFrameYUV->data, pFrameYUV->linesize);
+                    //enQueue(pFrameYUV);
+                    AVFrame *p = av_frame_alloc();
+                    int ret = av_frame_ref(p, pFrameOri);
+                    if (ret < 0){
+                        break;
+                    }
+                    queue1.push(p);
                 }
-                av_packet_unref(pVideoPacket);
             }
-
-
         }
+        av_packet_unref(pVideoPacket);
+    }
+
+    while (!queue1.empty()) {
+
+        auto displayFrame = queue1.front();
+        queue1.pop();
+
+//printf("displayFrame->pict_type %d \n",displayFrame->pict_type);
+
+        //printf("sizeof(pFrameYUV->linesize) %zu \n",sizeof(pFrameYUV->linesize));//32
+        //printf("sizeof(pFrameYUV->linesize[0]) %d \n", pFrameYUV->linesize[0] );//640
+
+
+// int sliceHeight = sws_scale(sws_ctx, (uint8_t const *const *) displayFrame->data, displayFrame->linesize,
+//                                                0, height, pFrameYUV->data, pFrameYUV->linesize);
+        //SDL---------------------------
+        SDL_UpdateTexture(sdlTexture, nullptr, displayFrame->data[0], width);
+        //SDL_UpdateTexture(sdlTexture, nullptr, pFrameYUV->data[0], width);
+        SDL_RenderClear(sdlRenderer);
+        SDL_RenderCopy(sdlRenderer, sdlTexture, &sdlRect, &sdlRect);
+        //SDL_RenderCopy(sdlRenderer, sdlTexture, nullptr, nullptr);
+        SDL_RenderPresent(sdlRenderer);
+        //SDL End-----------------------
 
         SDL_Delay(20);
+
     }
 
     SDL_Quit();
@@ -177,6 +205,20 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+bool enQueue(const AVFrame *frame) {
+    AVFrame *p = av_frame_alloc();
+
+    int ret = av_frame_ref(p, frame);
+    if (ret < 0)
+        return false;
+
+    //p->opaque = (void *) new double(*(double *) p->opaque); //上一个指向的是一个局部的变量，这里重新分配pts空间
+
+    queue1.push(p);
+
+
+    return true;
+}
 
 
 

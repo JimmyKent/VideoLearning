@@ -1,11 +1,17 @@
 #include <iostream>
+
+
 using namespace std;
 
 int simplest_yuv420_split(char *url, int w, int h, int num);
+
 int simplest_yuv420_gray(char *url, int w, int h, int num);
+
 int simplest_yuv420_halfy(char *url, int w, int h, int num);
 
 int simplest_yuv444_split(char *url, int w, int h, int num);
+
+extern int decodeVideo(char **pName);
 
 // ffplay 打开yuv格式文件 yuv420p 编码格式 s size i input
 // ffplay -f rawvideo -pix_fmt yuv420p -s 640x360 -i graybar_640x360.yuv
@@ -20,18 +26,25 @@ int simplest_yuv444_split(char *url, int w, int h, int num);
 
 //ffplay -f rawvideo -pixel_format yuv420p -video_size 256x256 output_half.yuv
 
-int main() {
-	std::cout << "start split yuv file y, u, v\n";
+int main(int argc, char *argv[]) {
+    std::cout << "start split yuv file y, u, v\n";
 
-	//分离yuv
-	simplest_yuv420_split((char *)"lena_256x256_yuv420p.yuv", 256, 256, 1);
-	//取灰色
-	simplest_yuv420_gray((char *)"lena_256x256_yuv420p.yuv", 256, 256, 1);
+    /* //分离yuv
+     simplest_yuv420_split((char *) "lena_256x256_yuv420p.yuv", 256, 256, 1);
+     //取灰色
+     simplest_yuv420_gray((char *) "lena_256x256_yuv420p.yuv", 256, 256, 1);
 
-	//亮度减半
-	simplest_yuv420_halfy((char *)"lena_256x256_yuv420p.yuv", 256, 256, 1);
+     //亮度减半
+     simplest_yuv420_halfy((char *) "lena_256x256_yuv420p.yuv", 256, 256, 1);
 
-	simplest_yuv444_split((char *)"lena_256x256_yuv444p.yuv", 256, 256, 1);
+     simplest_yuv444_split((char *) "lena_256x256_yuv444p.yuv", 256, 256, 1);*/
 
-	return 0;
+    char FILE_NAME[] = "屌丝男士.mov";
+    char *pName = FILE_NAME;
+    char **ppChar = &pName;
+    decodeVideo(ppChar);
+
+
+
+    return 0;
 }

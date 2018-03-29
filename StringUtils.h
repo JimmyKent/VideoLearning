@@ -1,5 +1,5 @@
 //
-// Created by 金国充 on 02/03/2018.
+// Created by 金国充 on 29/03/2018.
 //
 
-void singleCharReplace(char string[], char a, char b);
+void getYuvName(char **name,char **yuvName);

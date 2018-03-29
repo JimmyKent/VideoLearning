@@ -1,5 +1,6 @@
 //
 // Created by 金国充 on 11/03/2018.
+//删除avcodec_decode_video2函数
 //
 
 #include <iostream>
