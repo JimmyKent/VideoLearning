@@ -1,7 +1,8 @@
 //
 // Created by 金国充 on 11/03/2018.
 // 添加队列
-// 遗留问题: 如果先切割再显示, 显示不对
+// 在PlayVideo2的基础,如果先切割再显示, 显示不对,
+// 改成SDL_UpdateYUVTexture就行了
 //
 
 #include <iostream>
@@ -27,21 +28,21 @@ bool enQueue(const AVFrame *frame);
 
 std::queue<AVFrame *> queue1;
 
-int play() {
+int main() {
 
     //ffmpeg
 
-    AVFormatContext *pFormatCtx;
-    AVCodecContext *pVideoCodecCtx;
-    AVCodec *pVideoCodec;
-    AVPacket *pVideoPacket;
+    AVFormatContext *pFormatCtx = nullptr;
+    AVCodecContext *pVideoCodecCtx = nullptr;
+    AVCodec *pVideoCodec = nullptr;
+    AVPacket *pVideoPacket = nullptr;
 
     int videoIndex = -1;
 
     //------------SDL----------------
-    SDL_Window *screen;
-    SDL_Renderer *sdlRenderer;
-    SDL_Texture *sdlTexture;
+    SDL_Window *screen = nullptr;
+    SDL_Renderer *sdlRenderer = nullptr;
+    SDL_Texture *sdlTexture = nullptr;
     SDL_Rect sdlRect;
 
     //video info
@@ -73,7 +74,7 @@ int play() {
     }
 
     pVideoCodec = avcodec_find_decoder(pFormatCtx->streams[videoIndex]->codecpar->codec_id);
-    pVideoCodecCtx = avcodec_alloc_context3(pVideoCodec);//XXX 需要释放
+    pVideoCodecCtx = avcodec_alloc_context3(pVideoCodec);// 需要释放
     avcodec_parameters_to_context(pVideoCodecCtx, pFormatCtx->streams[videoIndex]->codecpar);
 
     if (pVideoCodec == nullptr) {
@@ -119,7 +120,7 @@ int play() {
 
     //------------SDL End------------
 
-    AVFrame *pFrameOri, *pFrameYUV;
+    AVFrame *pFrameOri = nullptr, *pFrameYUV = nullptr;
     pFrameOri = av_frame_alloc();
     pFrameYUV = av_frame_alloc();
 
@@ -150,15 +151,14 @@ int play() {
         if (pVideoPacket->stream_index == videoIndex) {
             if (avcodec_send_packet(pVideoCodecCtx, pVideoPacket) >= 0) {
                 if (avcodec_receive_frame(pVideoCodecCtx, pFrameOri) >= 0) {
-                    //XXX pFrameOri 这样一帧的数据是大的, 要切割
-                    //显示不对
+                    // pFrameOri 这样一帧的数据是大的, 要切割
                     int sliceHeight = sws_scale(sws_ctx, (uint8_t const *const *) pFrameOri->data,
-                                                 pFrameOri->linesize,
+                                                pFrameOri->linesize,
                                                 0, height, pFrameYUV->data, pFrameYUV->linesize);
                     //enQueue(pFrameYUV);
                     AVFrame *p = av_frame_alloc();
-                    int ret = av_frame_ref(p, pFrameOri);
-                    if (ret < 0){
+                    int ret = av_frame_ref(p, pFrameYUV);
+                    if (ret < 0) {
                         break;
                     }
                     queue1.push(p);
@@ -173,20 +173,14 @@ int play() {
         auto displayFrame = queue1.front();
         queue1.pop();
 
-//printf("displayFrame->pict_type %d \n",displayFrame->pict_type);
-
-        //printf("sizeof(pFrameYUV->linesize) %zu \n",sizeof(pFrameYUV->linesize));//32
-        //printf("sizeof(pFrameYUV->linesize[0]) %d \n", pFrameYUV->linesize[0] );//640
-
-
-// int sliceHeight = sws_scale(sws_ctx, (uint8_t const *const *) displayFrame->data, displayFrame->linesize,
-//                                                0, height, pFrameYUV->data, pFrameYUV->linesize);
         //SDL---------------------------
-        SDL_UpdateTexture(sdlTexture, nullptr, displayFrame->data[0], width);
-        //SDL_UpdateTexture(sdlTexture, nullptr, pFrameYUV->data[0], width);
+        SDL_UpdateYUVTexture(sdlTexture, nullptr,
+                             displayFrame->data[0], displayFrame->linesize[0],
+                             displayFrame->data[1], displayFrame->linesize[1],
+                             displayFrame->data[2], displayFrame->linesize[2]
+        );
         SDL_RenderClear(sdlRenderer);
         SDL_RenderCopy(sdlRenderer, sdlTexture, &sdlRect, &sdlRect);
-        //SDL_RenderCopy(sdlRenderer, sdlTexture, nullptr, nullptr);
         SDL_RenderPresent(sdlRenderer);
         //SDL End-----------------------
 

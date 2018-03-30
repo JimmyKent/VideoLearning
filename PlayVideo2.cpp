@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
 //                         AV_PIX_FMT_YUV420P, width, height, 1);
 
     SwsContext *sws_ctx = sws_getContext(width, height, pVideoCodecCtx->pix_fmt, width, height,
-                                                         AV_PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
+                                         AV_PIX_FMT_YUV420P, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
     while (av_read_frame(pFormatCtx, pVideoPacket) >= 0) {
         if (pVideoPacket->stream_index == videoIndex) {
@@ -150,6 +150,11 @@ int main(int argc, char *argv[]) {
 
                     //SDL---------------------------
                     SDL_UpdateTexture(sdlTexture, nullptr, pFrameYUV->data[0], pFrameYUV->linesize[0]);
+                    /*SDL_UpdateYUVTexture(sdlTexture, nullptr,
+                                      pFrameYUV->data[0], pFrameYUV->linesize[0],
+                                      pFrameYUV->data[1], pFrameYUV->linesize[1],
+                                      pFrameYUV->data[2], pFrameYUV->linesize[2]
+                    );*/
                     SDL_RenderClear(sdlRenderer);
                     SDL_RenderCopy(sdlRenderer, sdlTexture, &sdlRect, &sdlRect);
                     //SDL_RenderCopy(sdlRenderer, sdlTexture, nullptr, nullptr);
